@@ -4,34 +4,34 @@ title: Tutorial
 
 # Tutorial
 
-This document describes how to use PGroonga step by step. If you don't install PGroonga yet, [install][install] PGroonga before you read this document.
+This document describes how to use PGroonga step by step. If you haven't installed PGroonga yet, [install][install] PGroonga before you read this document.
 
-You can use PGroonga as fast full text search index. You can also use PGroonga as more general index for equality condition (`=`) and comparison conditions (`<`, `>=` and so on).
+You can use PGroonga as a fast full text search index. You can also use PGroonga as a more general index for equality conditions (`=`) and comparison conditions (`<`, `>=` and so on).
 
-PostgreSQL provides GiST and GIN as bundled indexes. You can use PGroonga as alternative of GiST and GIN. See [PGroonga versus GiST and GIN](../reference/pgroonga-versus-gist-and-gin.html) for differences of them.
+PostgreSQL provides GiST and GIN as bundled indexes. You can use PGroonga as an alternative to GiST and GIN. See [PGroonga versus GiST and GIN](../reference/pgroonga-versus-gist-and-gin.html) for differences between them.
 
-This document describes about the followings:
+This document describes the following:
 
-  * How to use PGroonga as index for full text search
+  * How to use PGroonga as an index for full text search
 
-  * How to use PGroonga as index for regular expression
+  * How to use PGroonga as an index for regular expression
 
-  * How to use PGroonga as index for similar search
+  * How to use PGroonga as an index for similar search
 
-  * How to use PGroonga as index for equality condition and comparison conditions
+  * How to use PGroonga as an index for equality conditions and comparison conditions
 
-  * How to use PGroonga as index for array
+  * How to use PGroonga as an index for an array
 
-  * How to use PGroonga as index for JSON
+  * How to use PGroonga as an index for JSON
 
-  * How to use PGroonga as index for auto complete
+  * How to use PGroonga as an index for auto-complete
 
   * How to use Groonga through PGroonga (advanced topic)
 
 
 ## Full text search
 
-This section describes about the followings:
+This section describes the following:
 
   * How to prepare PGroonga based full text search system
   * Operators for full text search
@@ -39,7 +39,7 @@ This section describes about the followings:
 
 ### How to prepare PGroonga based full text search system
 
-This section describes about how to prepare PGroonga based full text search system.
+This section describes how to prepare a PGroonga based full text search system.
 
 Create a column that you want to enable full text search as `text` type:
 
@@ -66,17 +66,17 @@ Insert test data:
 ```sql
 INSERT INTO memos VALUES (1, 'PostgreSQL is a relational database management system.');
 INSERT INTO memos VALUES (2, 'Groonga is a fast full text search engine that supports all languages.');
-INSERT INTO memos VALUES (3, 'PGroonga is a PostgreSQL extension that uses Groonga as index.');
-INSERT INTO memos VALUES (4, 'There is groonga command.');
+INSERT INTO memos VALUES (3, 'PGroonga is a PostgreSQL extension that uses Groonga as an index.');
+INSERT INTO memos VALUES (4, 'There is a groonga command.');
 ```
 
-Disable sequential scan to ensure using `pgroonga` index:
+Disable sequential scan to ensure the use of the `pgroonga` index:
 
 ```sql
 SET enable_seqscan = off;
 ```
 
-NOTE: You should not disable sequential scan on production environment. This is only for test.
+NOTE: You should not disable sequential scans on the production environment. This is only for testing.
 
 ### Operators for full text search
 
@@ -92,7 +92,7 @@ There are the following operators to perform full text search:
 
 #### `&@` operator
 
-You can use `&@` operator to perform full text search by one keyword:
+You can use `&@` operator to perform a full text search by one keyword:
 
 ```sql
 SELECT * FROM memos WHERE content &@ 'engine';
@@ -112,13 +112,13 @@ You can use `&@~` operator to perform full text search by query syntax such as `
 SELECT * FROM memos WHERE content &@~ 'PGroonga OR PostgreSQL';
 --  id |                            content                             
 -- ----+----------------------------------------------------------------
---   3 | PGroonga is a PostgreSQL extension that uses Groonga as index.
+--   3 | PGroonga is a PostgreSQL extension that uses Groonga as an index.
 --   1 | PostgreSQL is a relational database management system.
 -- (2 rows)
 ```
 
-Query syntax is similar to syntax of Web search engine ( `keyword1 OR keyword2` means `OR` search and `keyword1 keyword2` means `AND` search ).
-For example, you can use `OR` to merge result sets of performing full text search by two or more words. In the above example, you get a merged result set. The merged result set has records that includes `PGroonga` or `PostgreSQL`.
+Query syntax is similar to the syntax of Web search engines ( `keyword1 OR keyword2` means `OR` search and `keyword1 keyword2` means `AND` search ).
+For example, you can use `OR` to merge result sets by performing a full text search by two or more words. In the above example, you get a merged result set. The merged result set has records that include `PGroonga` or `PostgreSQL`.
 
 See [Groonga document](http://groonga.org/docs/reference/grn_expr/query_syntax.html) for full query syntax.
 
@@ -126,7 +126,7 @@ See [`&@~` operator](../reference/operators/query-v2.html) for more details.
 
 #### `LIKE` operator {#like}
 
-PGroonga supports `LIKE` operator. You can perform fast full text search by PGroonga without changing existing SQL.
+PGroonga supports `LIKE` operator. You can perform a fast full text search by PGroonga without changing existing SQL.
 
 `column LIKE '%keyword%'` almost equals to `column &@ 'keyword'`:
 
@@ -138,7 +138,7 @@ SELECT * FROM memos WHERE content LIKE '%engine%';
 -- (1 row)
 ```
 
-`LIKE` operator support is convenient because you can improve performance without changing existing applications. But `LIKE` operator is slower than `&@` because `LIKE` operator requires sequential search after index search. The process is called as "recheck". It's recommend that you change to `&@` or `&@~` from `LIKE` in your application for more performance.
+`LIKE` operator support is convenient because you can improve performance without changing existing applications. But `LIKE` operator is slower than `&@` because `LIKE` operator requires sequential search after index search. The process is called a "recheck". It's recommended that you change to `&@` or `&@~` from `LIKE` in your application for more performance.
 
 See [`LIKE` operator](../reference/operators/like.html) for more details.
 
@@ -146,9 +146,9 @@ You can also use `ILIKE` operator like `LIKE` operator.
 
 ### Score {#score}
 
-You can use `pgroonga_score` function to get precision as a number. If a record is more precision against searched query, the record has more higher number.
+You can use `pgroonga_score` function to get the precision as a number. If a record is more precise against the searched query, the record has a higher number.
 
-Here is a sample schema that includes primary key into indexed columns:
+Here is a sample schema that includes the primary key in the indexed columns:
 
 ```sql
 CREATE TABLE score_memos (
@@ -166,8 +166,8 @@ Insert test data:
 ```sql
 INSERT INTO score_memos VALUES (1, 'PostgreSQL is a relational database management system.');
 INSERT INTO score_memos VALUES (2, 'Groonga is a fast full text search engine that supports all languages.');
-INSERT INTO score_memos VALUES (3, 'PGroonga is a PostgreSQL extension that uses Groonga as index.');
-INSERT INTO score_memos VALUES (4, 'There is groonga command.');
+INSERT INTO score_memos VALUES (3, 'PGroonga is a PostgreSQL extension that uses Groonga as an index.');
+INSERT INTO score_memos VALUES (4, 'There is a groonga command.');
 ```
 
 Disable sequential scan to ensure using `pgroonga` index:
@@ -176,7 +176,7 @@ Disable sequential scan to ensure using `pgroonga` index:
 SET enable_seqscan = off;
 ```
 
-Perform full text search and get score.
+Perform a full text search and get a score.
 
 ```sql
 SELECT *, pgroonga_score(tableoid, ctid) AS score
@@ -185,7 +185,7 @@ SELECT *, pgroonga_score(tableoid, ctid) AS score
 --  id |                            content                             | score 
 -- ----+----------------------------------------------------------------+-------
 --   1 | PostgreSQL is a relational database management system.         |     1
---   3 | PGroonga is a PostgreSQL extension that uses Groonga as index. |     2
+--   3 | PGroonga is a PostgreSQL extension that uses Groonga as an index. |     2
 -- (2 rows)
 ```
 
@@ -198,7 +198,7 @@ SELECT *, pgroonga_score(tableoid, ctid) AS score
  ORDER BY pgroonga_score(tableoid, ctid) DESC;
 --  id |                            content                             | score 
 -- ----+----------------------------------------------------------------+-------
---   3 | PGroonga is a PostgreSQL extension that uses Groonga as index. |     2
+--   3 | PGroonga is a PostgreSQL extension that uses Groonga as an index. |     2
 --   1 | PostgreSQL is a relational database management system.         |     1
 -- (2 rows)
 ```
@@ -231,8 +231,8 @@ Insert sample data:
 ```sql
 INSERT INTO sample_texts VALUES (1, 'PostgreSQL is a relational database management system.');
 INSERT INTO sample_texts VALUES (2, 'Groonga is a fast full text search engine that supports all languages.');
-INSERT INTO sample_texts VALUES (3, 'PGroonga is a PostgreSQL extension that uses Groonga as index.');
-INSERT INTO sample_texts VALUES (4, 'There is groonga command.');
+INSERT INTO sample_texts VALUES (3, 'PGroonga is a PostgreSQL extension that uses Groonga as an index.');
+INSERT INTO sample_texts VALUES (4, 'There is a groonga command.');
 ```
 
 Perform full text search and get your search keywords ('PostgreSQL' and 'database' in this example) highlighted.
@@ -256,24 +256,24 @@ See [`pgroonga_highlight_html` function](../reference/functions/pgroonga-highlig
 
 ### Snippet (KWIC, keyword in context) {#snippet}
 
-You can use `pgroonga_snippet_html` function to get texts around keywords from search target text. It's also known as [KWIC](https://en.wikipedia.org/wiki/Key_Word_in_Context) (keyword in context). You can see it in search result on Web search engine.
+You can use `pgroonga_snippet_html` function to get texts around keywords from search target text. It's also known as [KWIC](https://en.wikipedia.org/wiki/Key_Word_in_Context) (keyword in context). You can see it in search results on Web search engines.
 
-Here is a sample text for description. It's a description about Groonga.
+Here is a sample text for description. It's a description of Groonga.
 
-> Groonga is a fast and accurate full text search engine based on inverted index. One of the characteristics of Groonga is that a newly registered document instantly appears in search results. Also, Groonga allows updates without read locks. These characteristics result in superior performance on real-time applications.
+> Groonga is a fast and accurate full text search engine based on an inverted index. One of the characteristics of Groonga is that a newly registered document instantly appears in search results. Also, Groonga allows updates without read locks. These characteristics result in superior performance on real-time applications.
 
 
-There are some `fast` keywords. `pgroonga_snippet_html` extracts texts around `fast`. Keywords in extracted texts are surround with `<span class="keyword">` and `</span>`.
+There are some `fast` keywords. `pgroonga_snippet_html` extracts texts around `fast`. Keywords in extracted texts are surrounded with `<span class="keyword">` and `</span>`.
 
-`html` in `pgroonga_snippet_html` means that this function returns result for HTML output.
+`html` in `pgroonga_snippet_html` means that this function returns a result for HTML output.
 
 Here is the result of `pgroonga_snippet_html` against the above text:
 
-> Groonga is a <span class="keyword">fast</span> and accurate full text search engine based on inverted index. One of the characteristics of Groonga is that a newly registered document instantly appears in search results. Also, Gro
+> Groonga is a <span class="keyword">fast</span> and accurate full text search engine based on an inverted index. One of the characteristics of Groonga is that a newly registered document instantly appears in search results. Also, Gro
 
-This function can be used for all texts. It's not only for search result by PGroonga.
+This function can be used for all texts. It's not only for search results by PGroonga.
 
-Here is a sample SQL that describes about it. You can use the function in the following `SELECT` that doesn't have `FROM`. Note that [`unnest`]({{ site.postgresql_doc_base_url.en }}/functions-array.html) is a PostgreSQL function that converts an array to rows.
+Here is a sample SQL that describes it. You can use the function in the following `SELECT` that doesn't have `FROM`. Note that [`unnest`]({{ site.postgresql_doc_base_url.en }}/functions-array.html) is a PostgreSQL function that converts an array to rows.
 
 ```sql
 SELECT unnest(pgroonga_snippet_html(
@@ -292,7 +292,7 @@ SELECT unnest(pgroonga_snippet_html(
   ARRAY['fast', 'PostgreSQL']));
                                                                                  --                                unnest                                                                                                                 
 -- ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---  Groonga is a <span class="keyword">fast</span> and accurate full text search engine based on inverted index. One of the characteristics of Groonga is that a newly registered document instantly appears in search results. Also, Gro
+--  Groonga is a <span class="keyword">fast</span> and accurate full text search engine based on an inverted index. One of the characteristics of Groonga is that a newly registered document instantly appears in search results. Also, Gro
 --  ase management system (DBMS). Compared with well-known row-oriented systems, such as MySQL and <span class="keyword">PostgreSQL</span>, column-oriented systems are more suited for aggregate queries. Due to this advantage, Groonga
 -- (2 rows)
 ```
@@ -317,17 +317,17 @@ See [`&@*` operator](../reference/operators/similar-search-v2.html) for more det
 
 ## Equality condition and comparison conditions {#equal}
 
-You can use PGroonga for equality condition and comparison conditions. There are some differences between how to create index for string types and other types. There is no difference between how to write condition for string types and other types.
+You can use PGroonga for equality conditions and comparison conditions. There are some differences between how to create an index for string types and other types. There is no difference between how to write conditions for string types and other types.
 
-This section describes about the followings:
+This section describes the following:
 
-  * How to use PGroonga for not string types
+  * How to use PGroonga for non-string types
 
   * How to use PGroonga for string types
 
-### How to use PGroonga for not string types {#equal-not-string}
+### How to use PGroonga for non-string types {#equal-not-string}
 
-You can use PGroonga for not string types such as number. You can use equality condition and comparison conditions against these types.
+You can use PGroonga for non-string types such as numbers. You can use equality conditions and comparison conditions against these types.
 
 Create index with `USING pgroonga`:
 
@@ -449,7 +449,7 @@ INSERT INTO docs
                    'Groonga can be embedded into other systems.']);
 INSERT INTO docs
      VALUES (3,
-             ARRAY['PGroonga is a PostgreSQL extension that uses Groonga as index.',
+             ARRAY['PGroonga is a PostgreSQL extension that uses Groonga as an index.',
                    'It adds powerful full text search feature to PostgreSQL.']);
 ```
 
@@ -461,7 +461,7 @@ SELECT * FROM docs WHERE sections &@ 'text';
 -- ----+-------------------------------------------------------------------------------------------------------------------------------
 --   1 | {"PostgreSQL is a relational database management system.","PostgreSQL supports full text search partially."}
 --   2 | {"Groonga is a fast full text search engine that supports all languages.","Groonga can be embedded into other systems."}
---   3 | {"PGroonga is a PostgreSQL extension that uses Groonga as index.","It adds powerful full text search feature to PostgreSQL."}
+--   3 | {"PGroonga is a PostgreSQL extension that uses Groonga as an index.","It adds powerful full text search feature to PostgreSQL."}
 -- (3 rows)
 ```
 
@@ -779,8 +779,8 @@ SELECT *
 --  [["_id","UInt32"],["content","LongText"],["ctid","UInt64"]]
 --  [1,"PostgreSQL is a relational database management system.",1]
 --  [2,"Groonga is a fast full text search engine that supports all languages.",2]
---  [3,"PGroonga is a PostgreSQL extension that uses Groonga as index.",3]
---  [4,"There is groonga command.",4]
+--  [3,"PGroonga is a PostgreSQL extension that uses Groonga as an index.",3]
+--  [4,"There is a groonga command.",4]
 -- (6 rows)
 ```
 
